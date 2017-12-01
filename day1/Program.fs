@@ -4,14 +4,13 @@
 let part1 (inputString: string) = 
     // to simulate a circular string, append the first character to new string
     let input = inputString + inputString.[0].ToString()
-    let rec goThroughPart1 (iterThru: string) sum =
-        if iterThru.Length < 2 then
+    let rec goThroughPart1 pos sum =
+        if input.Length < 2 then
             sum
         else
-            let toAdd = if iterThru.[0] = iterThru.[1] then int (string iterThru.[0]) else 0
-            let trunc = iterThru.Remove(0, 1)
-            goThroughPart1 trunc (sum + toAdd)
-    goThroughPart1 input 0
+            let toAdd = if input.[pos] = input.[pos + 1] then int (string input.[0]) else 0
+            goThroughPart1 (pos + 1) (sum + toAdd)
+    goThroughPart1 0 0
 
 let part2 (inputString: string) = 
     // to simulate a circular string, this time just append itself and iterate
