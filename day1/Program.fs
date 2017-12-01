@@ -3,14 +3,12 @@
 
 let part1 (inputString: string) = 
     // to simulate a circular string, append the first character to new string
-    let input = inputString + inputString.[0].ToString()
-    let rec goThroughPart1 pos sum =
-        if input.Length < 2 then
-            sum
-        else
-            let toAdd = if input.[pos] = input.[pos + 1] then int (string input.[0]) else 0
-            goThroughPart1 (pos + 1) (sum + toAdd)
-    goThroughPart1 0 0
+    let input = inputString + string inputString.[0]
+    // seq it
+    Seq.map (fun x -> string x |> int) input
+        |> Seq.pairwise
+        |> Seq.map (fun y -> if fst y = snd y then fst y else 0)
+        |> Seq.sum
 
 let part2 (inputString: string) = 
     // to simulate a circular string, this time just append itself and iterate
