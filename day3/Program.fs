@@ -58,7 +58,10 @@ let findPosition (target: int) (arr: int array array) =
     let y = Array.findIndex (fun a -> iArr = a) arr
     assert (arr.[y].[x] = target)
     (y, x)
-    
+   
+let findDistance (x1, y1) (x2, y2) = 
+    (max x1 x2 - min x1 x2) + (max y1 y2 - min y1 y2)
+
 [<EntryPoint>]
 let main argv =
     let target = 277678
@@ -67,4 +70,10 @@ let main argv =
     let jagged = spiral |> md2jagged
     let positionOfTarget = findPosition target jagged
     let positionOfBeginning = findPosition 1 jagged
+
+    let part1Res = findDistance positionOfBeginning positionOfTarget
+    let part2Res = -1
+
+    printfn "Part 1: %d; Part 2: %d" part1Res part2Res
+
     0 // return an integer exit code
