@@ -52,9 +52,19 @@ let printSpiral x =
 let rec bestSquare target i =
     if (i * i >= target) then i else bestSquare target (i + 1)
 
+let findPosition (target: int) (arr: int array array) =
+    let iArr = Array.find (fun x -> Array.contains target x) arr
+    let x = Array.findIndex (fun a -> target = a) iArr
+    let y = Array.findIndex (fun a -> iArr = a) arr
+    assert (arr.[y].[x] = target)
+    (y, x)
+    
 [<EntryPoint>]
 let main argv =
     let target = 277678
     let square = bestSquare target 1
-    let spiral = makeUlam square 1 |> md2jagged
+    let spiral = makeUlam square 1
+    let jagged = spiral |> md2jagged
+    let positionOfTarget = findPosition target jagged
+    let positionOfBeginning = findPosition 1 jagged
     0 // return an integer exit code
