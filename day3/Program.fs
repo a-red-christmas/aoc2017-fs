@@ -1,4 +1,5 @@
 ﻿// https://adventofcode.com/2017/day/3
+// HACK HACK HACK
 
 type Direction = 
     | Left
@@ -6,10 +7,10 @@ type Direction =
     | Up
     | Down
 
-let md2jagged (x: int[,]) =
+let md2jagged x =
     let xx = Array2D.length1 x
     let xy = Array2D.length2 x
-    let newArray = Array.create<int[]> xx [||]
+    let newArray = Array.create xx [||]
     for i in 0..(xx - 1) do
         // init arrays here... doing so above will copy the ref
         newArray.[i] <- Array.create xy 0
@@ -42,6 +43,36 @@ let makeUlam (n: int) (i: int) =
         j <- j + 1
         //printfn "j %d x %d y %d d %A" j x y dir
     spiral
+let makeUlamPart2 (n: int) (i: int) =
+    let spiral = Array2D.create n n 0
+    let neighboursSum (a, b) =
+        spiral.[max 0 (a - 1)..min (a + 1) (n - 1), max 0 (b - 1)..min (b + 1) (n - 1)]
+        |> Seq.cast<int>
+        |> Seq.sum
+    let mutable dir = Right
+    let mutable j = i
+    let mutable k = j
+    let mutable y = n / 2
+    let mutable x = if (n % 2 = 0) then y - 1 else y
+    while (j <= ((n * n) - 1 + i)) do
+        spiral.[y, x] <- k
+        dir <- match dir with
+        | Right -> if (x <= n - 1 && spiral.[y - 1, x] = 0 && j > i) then Up else Right
+        | Up -> if (spiral.[y, x - 1] = 0) then Left else Up
+        | Left -> if (x = 0 || spiral.[y + 1, x] = 0) then Down else Left
+        | Down -> if (spiral.[y, x + 1] = 0) then Right else Down
+        x <- match dir with
+        | Right -> x + 1
+        | Left -> x - 1
+        | _ -> x
+        y <- match dir with
+        | Down -> y + 1
+        | Up -> y - 1
+        | _ -> y
+        j <- j + 1
+        k <- if j = 1 then j else neighboursSum (y, x)
+        //printfn "j %d x %d y %d d %A" j x y dir
+    spiral
 
 let printSpiral x =
     for i in x do
@@ -72,7 +103,10 @@ let main argv =
     let positionOfBeginning = findPosition 1 jagged
 
     let part1Res = findDistance positionOfBeginning positionOfTarget
-    let part2Res = -1
+
+    let part2Spiral = makeUlamPart2 9 1
+    printSpiral (part2Spiral |> md2jagged)
+    let part2Res = part2Spiral |> Seq.cast<int> |> Seq.find (fun x -> x > target)
 
     printfn "Part 1: %d; Part 2: %d" part1Res part2Res
 
