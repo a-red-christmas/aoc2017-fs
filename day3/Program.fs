@@ -1,5 +1,4 @@
-﻿// Learn more about F# at http://fsharp.org
-// See the 'F# Tutorial' project for more help.
+﻿// https://adventofcode.com/2017/day/3
 
 type Direction = 
     | Left
@@ -44,12 +43,18 @@ let makeUlam (n: int) (i: int) =
         //printfn "j %d x %d y %d d %A" j x y dir
     spiral
 
-[<EntryPoint>]
-let main argv =
-    let spiral = makeUlam 9 1 |> md2jagged
-    // print spiral
-    for i in spiral do
+let printSpiral x =
+    for i in x do
         let j = Array.map int i
         let joined = System.String.Join("\t", j)
         printfn "%s" joined
+
+let rec bestSquare target i =
+    if (i * i >= target) then i else bestSquare target (i + 1)
+
+[<EntryPoint>]
+let main argv =
+    let target = 277678
+    let square = bestSquare target 1
+    let spiral = makeUlam square 1 |> md2jagged
     0 // return an integer exit code
