@@ -19,7 +19,7 @@ let md2jagged x =
     newArray
 
 // HACK: very imperative
-let makeUlam (n: int) (i: int) =
+let makeUlam n i =
     let spiral = Array2D.create n n 0
     let mutable dir = Right
     let mutable j = i
@@ -43,7 +43,8 @@ let makeUlam (n: int) (i: int) =
         j <- j + 1
         //printfn "j %d x %d y %d d %A" j x y dir
     spiral
-let makeUlamPart2 (n: int) (i: int) =
+// return the first largest num instead
+let getUlamPart2LargestAfterTarget n i target =
     let spiral = Array2D.create n n 0
     let neighboursSum (a, b) =
         spiral.[max 0 (a - 1)..min (a + 1) (n - 1), max 0 (b - 1)..min (b + 1) (n - 1)]
@@ -54,6 +55,7 @@ let makeUlamPart2 (n: int) (i: int) =
     let mutable k = j
     let mutable y = n / 2
     let mutable x = if (n % 2 = 0) then y - 1 else y
+    let mutable desired = 0
     while (j <= ((n * n) - 1 + i)) do
         spiral.[y, x] <- k
         dir <- match dir with
@@ -71,8 +73,9 @@ let makeUlamPart2 (n: int) (i: int) =
         | _ -> y
         j <- j + 1
         k <- if j = 1 then j else neighboursSum (y, x)
-        //printfn "j %d x %d y %d d %A" j x y dir
-    spiral
+        desired <- if (desired = 0 && k > target) then k else desired
+        //printfn "D %d t %d k %d j %d x %d y %d d %A" desired target k j x y dir
+    desired
 
 let printSpiral x =
     for i in x do
@@ -83,7 +86,7 @@ let printSpiral x =
 let rec bestSquare target i =
     if (i * i >= target) then i else bestSquare target (i + 1)
 
-let findPosition (target: int) (arr: int array array) =
+let findPosition target arr =
     let iArr = Array.find (fun x -> Array.contains target x) arr
     let x = Array.findIndex (fun a -> target = a) iArr
     let y = Array.findIndex (fun a -> iArr = a) arr
@@ -103,10 +106,8 @@ let main argv =
     let positionOfBeginning = findPosition 1 jagged
 
     let part1Res = findDistance positionOfBeginning positionOfTarget
-
-    let part2Spiral = makeUlamPart2 9 1
-    printSpiral (part2Spiral |> md2jagged)
-    let part2Res = part2Spiral |> Seq.cast<int> |> Seq.find (fun x -> x > target)
+    // I don't have a good enough algo to emulate bestSquare for part2 spiral
+    let part2Res = getUlamPart2LargestAfterTarget 10 1 target
 
     printfn "Part 1: %d; Part 2: %d" part1Res part2Res
 
