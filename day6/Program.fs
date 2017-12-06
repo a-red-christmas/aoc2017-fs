@@ -21,12 +21,8 @@ let rec realloc seenStack array steps =
     let newPos = allocBlocks array (nextPos array xPos) x
     // could check newSeenStack for distinct as well
     if List.contains array seenStack then
-        // append our current value to the list since we won't recurse
-        let newerSeenStack = List.append [Array.copy array] seenStack
-        let a = List.findIndex (fun y -> y = array) newerSeenStack
-        let b = List.findIndexBack (fun y -> y = array) newerSeenStack
-        let distance = b - a + 1
-        (steps + 1, distance)
+        let distance = List.findIndex (fun y -> y = array) newSeenStack
+        (steps + 1, distance + 1)
     else
         realloc newSeenStack array (steps + 1)
 
