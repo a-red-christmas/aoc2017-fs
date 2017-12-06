@@ -1,5 +1,4 @@
-﻿// Learn more about F# at http://fsharp.org
-// See the 'F# Tutorial' project for more help.
+﻿// https://adventofcode.com/2017/day/6
 
 let nextPos array from =
     let len = Array.length array
@@ -22,7 +21,12 @@ let rec realloc seenStack array steps =
     let newPos = allocBlocks array (nextPos array xPos) x
     // could check newSeenStack for distinct as well
     if List.contains array seenStack then
-        steps + 1
+        // append our current value to the list since we won't recurse
+        let newerSeenStack = List.append [Array.copy array] seenStack
+        let a = List.findIndex (fun y -> y = array) newerSeenStack
+        let b = List.findIndexBack (fun y -> y = array) newerSeenStack
+        let distance = b - a + 1
+        (steps + 1, distance)
     else
         realloc newSeenStack array (steps + 1)
 
@@ -30,8 +34,8 @@ let rec realloc seenStack array steps =
 let main argv = 
     let blocks = //[| 0; 2; 7; 0|]
         [| 11; 11; 13; 7; 0 ; 15; 5; 5; 4; 4; 1; 1; 7; 1; 15; 11|]
-    let steps = realloc [] blocks 0
+    let (steps, distance) = realloc [] blocks 0
     let part1res = steps
-    let part2res = -1
+    let part2res = distance
     printfn "Part 1: %d; Part 2: %d" part1res part2res
     0 // return an integer exit code
