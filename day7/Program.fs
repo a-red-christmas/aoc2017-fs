@@ -35,7 +35,6 @@ let mode l =
 
 let rec checkWeight nodes node =
     if Array.length node.Children = 0 then
-        //printfn "tip %s %d" node.Name node.Weight
         node.Weight
     else
         let children = getChildren nodes node
@@ -43,7 +42,6 @@ let rec checkWeight nodes node =
         let childrenJoined = Array.zip children childrenWeight
         let childrenSum = Array.sum childrenWeight
         let totalWeight = node.Weight + childrenSum
-        //printfn "branch %s w %d + c %d = %d" node.Name node.Weight childrenSum totalWeight
         if Array.distinct childrenWeight |> Array.length <> 1 then
             let m = mode childrenWeight
             let i = Array.findIndex (fun x -> x <> m) childrenWeight
