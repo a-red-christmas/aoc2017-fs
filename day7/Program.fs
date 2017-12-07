@@ -2,6 +2,8 @@
 
 open System.Text.RegularExpressions
 
+exception Day7Imbalance of int
+
 [<StructuredFormatDisplay("{Name} ({Weight}) -> {Children}")>]
 type InputTreeNode =
     { Name: string; Weight: int; Children: string array }
@@ -33,7 +35,7 @@ let mode l =
 
 let rec checkWeight nodes node =
     if Array.length node.Children = 0 then
-        printfn "tip %s %d" node.Name node.Weight
+        //printfn "tip %s %d" node.Name node.Weight
         node.Weight
     else
         let children = getChildren nodes node
@@ -41,14 +43,14 @@ let rec checkWeight nodes node =
         let childrenJoined = Array.zip children childrenWeight
         let childrenSum = Array.sum childrenWeight
         let totalWeight = node.Weight + childrenSum
-        printfn "branch %s w %d + c %d = %d" node.Name node.Weight childrenSum totalWeight
+        //printfn "branch %s w %d + c %d = %d" node.Name node.Weight childrenSum totalWeight
         if Array.distinct childrenWeight |> Array.length <> 1 then
             let m = mode childrenWeight
             let i = Array.findIndex (fun x -> x <> m) childrenWeight
             let ci = children.[i]
             let wi = childrenWeight.[i]
             let x = ci.Weight + (m - wi)
-            failwith "imbalance"
+            raise (Day7Imbalance x)
         else
             totalWeight
 
@@ -59,6 +61,6 @@ let main argv =
     let children = Array.collect (fun x -> x.Children) input
     let part1res = (Array.find (fun x ->
         Array.contains x.Name children = false) input)
-    let part2res = checkWeight input part1res
-    printfn "Part 1: %s; Part 2: %d" part1res.Name -1
+    let part2res = try checkWeight input part1res with Day7Imbalance x -> x
+    printfn "Part 1: %s; Part 2: %d" part1res.Name part2res
     0 // return an integer exit code
