@@ -39,7 +39,6 @@ let rec checkWeight nodes node =
     else
         let children = getChildren nodes node
         let childrenWeight = Array.map (fun x -> checkWeight nodes x) children
-        let childrenJoined = Array.zip children childrenWeight
         let childrenSum = Array.sum childrenWeight
         let totalWeight = node.Weight + childrenSum
         if Array.distinct childrenWeight |> Array.length <> 1 then
