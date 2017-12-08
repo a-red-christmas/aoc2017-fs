@@ -42,11 +42,11 @@ let parseOpcode x =
 let regMapMax map =
     map |> Map.toList |> List.maxBy (fun (x, y) -> y) |> snd
 
-let rec run (registers: Map<string, int>) opcodes pc peak =
-    if pc = Array.length opcodes then
+let rec run (registers: Map<string, int>) opcodes peak =
+    if Array.length opcodes = 0 then
         (registers, peak)
     else
-        let current = opcodes.[pc]
+        let current = Array.head opcodes
         let crn = current.ComparisonRegister
         let cr = registers.[crn]
         let cn = current.ComparisonNumber
@@ -56,7 +56,7 @@ let rec run (registers: Map<string, int>) opcodes pc peak =
         let newReg = Map.map (fun k v ->
             if can && k = r then v + i else v) registers
         let newPeak = max (regMapMax newReg) peak
-        run newReg opcodes (pc + 1) newPeak
+        run newReg (Array.tail opcodes) newPeak
 
 [<EntryPoint>]
 let main argv = 
@@ -68,7 +68,7 @@ let main argv =
             |> Array.distinct
     let arz = Array.zip ar (Array.init (Array.length ar) (fun x -> 0))
     let regMap = Map.ofArray arz
-    let (regs, peak) = run regMap (Array.copy input) 0 0
+    let (regs, peak) = run regMap (Array.copy input) 0
     let part1res = regMapMax regs
     let part2res = peak
     printfn "Part 1: %d; Part 2: %d" part1res part1res
