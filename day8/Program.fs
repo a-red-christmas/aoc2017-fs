@@ -48,9 +48,12 @@ let parseOpcode x =
         ComparisonNumber = cmpNum
     }
 
-let rec run (registers: Map<string, int>) (opcodes: Opcode array) (pc: int) =
+let regMapMax map =
+    map |> Map.toList |> List.maxBy (fun (x, y) -> y) |> snd
+
+let rec run (registers: Map<string, int>) opcodes pc peak =
     if pc = Array.length opcodes then
-        registers
+        (registers, peak)
     else
         let current = opcodes.[pc]
         let crn = current.ComparisonRegister
@@ -67,7 +70,8 @@ let rec run (registers: Map<string, int>) (opcodes: Opcode array) (pc: int) =
             | LesserOrEqual -> cr <= cn
         let newReg = Map.map (fun k v ->
             if can && k = r then v + i else v) registers
-        run newReg opcodes (pc + 1) 
+        let newPeak = max (regMapMax newReg) peak
+        run newReg opcodes (pc + 1) newPeak
 
 [<EntryPoint>]
 let main argv = 
@@ -79,8 +83,8 @@ let main argv =
             |> Array.distinct
     let arz = Array.zip ar (Array.init (Array.length ar) (fun x -> 0))
     let regMap = Map.ofArray arz
-    //let empty = new System.Collections.Generic.Dictionary<string, int>()
-    let regs = run regMap (Array.copy input) 0
-    let part1res = regs |> Map.toList |> List.maxBy (fun (x, y) -> y) |> snd
-    printfn "Part 1: %d; Part 2: %d" part1res -1
+    let (regs, peak) = run regMap (Array.copy input) 0 0
+    let part1res = regMapMax regs
+    let part2res = peak
+    printfn "Part 1: %d; Part 2: %d" part1res part1res
     0 // return an integer exit code
