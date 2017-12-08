@@ -2,20 +2,12 @@
 
 open System.Text.RegularExpressions
 
-type ComparisonOperation =
-    | Equal
-    | NotEqual
-    | Greater
-    | GreaterOrEqual
-    | Lesser
-    | LesserOrEqual
-
 type Opcode =
     {
         Register: string;
         Increment: int; // dec = -Operation
         ComparisonRegister: string;
-        ComparisonOperation: ComparisonOperation;
+        ComparisonOperation: int -> int -> bool;
         ComparisonNumber: int
     }
     override m.ToString() =
@@ -32,12 +24,12 @@ let parseOpcode x =
     let inc = if r.Groups.[2].Value = "dec" then -incrementBy else incrementBy
     let cmpReg = r.Groups.[4].Value
     let cmpOp = match r.Groups.[5].Value with
-        | "==" -> Equal
-        | "!=" -> NotEqual
-        | ">"  -> Greater
-        | ">=" -> GreaterOrEqual
-        | "<"  -> Lesser
-        | "<=" -> LesserOrEqual
+        | "==" -> (=)
+        | "!=" -> (<>)
+        | ">"  -> (>)
+        | ">=" -> (>=)
+        | "<"  -> (<)
+        | "<=" -> (<=)
     let cmpNum = int r.Groups.[6].Value
     {
         Register = name;
@@ -60,13 +52,7 @@ let rec run (registers: Map<string, int>) opcodes pc peak =
         let cn = current.ComparisonNumber
         let i = current.Increment
         let r = current.Register
-        let can = match current.ComparisonOperation with
-            | Equal -> cr = cn
-            | NotEqual -> cr <> cn
-            | Greater -> cr > cn
-            | GreaterOrEqual -> cr >= cn
-            | Lesser -> cr < cn
-            | LesserOrEqual -> cr <= cn
+        let can = current.ComparisonOperation cr cn
         let newReg = Map.map (fun k v ->
             if can && k = r then v + i else v) registers
         let newPeak = max (regMapMax newReg) peak
