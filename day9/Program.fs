@@ -6,9 +6,9 @@ type State =
     | GarbageInGroup
     | GarbageOutGroup
 
-let rec part1 input pc state deep score =
+let rec run input pc state deep score garbage =
     if String.length input = pc then
-        score
+        (score, garbage)
     else
         let char = input.[pc]
         if state = GarbageInGroup || state = GarbageOutGroup then
@@ -16,10 +16,12 @@ let rec part1 input pc state deep score =
                 | '>' when state = GarbageInGroup -> Group
                 | '<' when state = GarbageOutGroup -> NoMode
                 | _ -> state
+            let newGarbage = garbage + match char with
+                | '!' | '>' -> 0
+                | _ -> 1
             let newPc = pc + if char = '!' then 2 else 1
-            part1 input newPc newState deep score
+            run input newPc newState deep score newGarbage
         else
-            printf "%c" char
             let newScore = if state = Group && char = '}' then score + deep else score
             let newDeep = deep + match char with
                 | '{' -> 1
@@ -32,12 +34,11 @@ let rec part1 input pc state deep score =
                 | '}' when state = Group && deep = 1 -> NoMode
                 | _ -> state
             let newPc = pc + if char = '!' then 2 else 1
-            part1 input newPc newState newDeep newScore
+            run input newPc newState newDeep newScore garbage
 
 [<EntryPoint>]
 let main argv = 
-    // "{{<a!>},{<a!>},{<a!>},{<ab>}}"
     let input = System.IO.File.ReadAllText("input.txt")
-    let part1res = part1 input 0 NoMode 0 0
-    printfn "%A" argv
-    0 // return an integer exit code
+    let (part1res, part2res) = run input 0 NoMode 0 0 0
+    printfn "Part 1: %d; Part 2: %d" part1res part2res
+    0
