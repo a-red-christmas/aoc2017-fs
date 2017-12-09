@@ -11,6 +11,7 @@ let rec run input pc state deep score garbage =
         (score, garbage)
     else
         let char = input.[pc]
+        let newPc = pc + if char = '!' then 2 else 1
         if state = GarbageInGroup || state = GarbageOutGroup then
             let newState = match char with
                 | '>' when state = GarbageInGroup -> Group
@@ -19,10 +20,11 @@ let rec run input pc state deep score garbage =
             let newGarbage = garbage + match char with
                 | '!' | '>' -> 0
                 | _ -> 1
-            let newPc = pc + if char = '!' then 2 else 1
             run input newPc newState deep score newGarbage
         else
-            let newScore = if state = Group && char = '}' then score + deep else score
+            let newScore = score + match char with
+                | '}' when state = Group -> deep
+                | _ -> 0
             let newDeep = deep + match char with
                 | '{' -> 1
                 | '}' -> -1
@@ -33,7 +35,6 @@ let rec run input pc state deep score garbage =
                 | '<' when state <> Group -> GarbageOutGroup
                 | '}' when state = Group && deep = 1 -> NoMode
                 | _ -> state
-            let newPc = pc + if char = '!' then 2 else 1
             run input newPc newState newDeep newScore garbage
 
 [<EntryPoint>]
