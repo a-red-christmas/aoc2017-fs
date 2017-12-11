@@ -1,5 +1,4 @@
-﻿// Learn more about F# at http://fsharp.org
-// See the 'F# Tutorial' project for more help.
+﻿// https://adventofcode.com/2017/day/11
 
 let goDirectionHex (y, x) desiredDirection =
     match desiredDirection with
