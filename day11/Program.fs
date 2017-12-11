@@ -26,6 +26,7 @@ let main argv =
     let inputRaw = System.IO.File.ReadAllText("input.txt")
     let input = inputRaw.Split(',')
     let (y, x, m) = followGrid (0, 0, 0) input
+    // 08:58 < leah2> you need max(abs(a),abs(b),abs(a)+abs(b))
     let distance = max (abs y) (abs x)
     printfn "Part 1: %d; Part 2: %d" distance m
     0 // return an integer exit code
