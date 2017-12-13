@@ -48,25 +48,40 @@ let moveScanners k v =
                             ScanUp
             }
 
-let rec coreLoop position severity (input: Map<int, FirewallLayer>) =
-    if (Map.toList input |> List.map fst |> List.max) + 1 = position then
-        severity
+let rec coreLoop position severity catches maxCatch input =
+    let pastLimits =
+        (Map.toList input |> List.map fst |> List.max) + 1 = position
+    let hitMaxCatches =
+        match maxCatch with
+            | Some(x) -> catches > x
+            | None -> false
+    if hitMaxCatches || pastLimits then
+        (severity, catches)
     else
-        let newSeverity =
+        let (newSeverity, newCatches) =
             if Map.containsKey position input then
                 let layer = input.[position]
                 if layer.ScannerPosition = 0 then
-                    severity + (layer.Depth * position)
-                else severity
-            else severity
+                    (severity + (layer.Depth * position), catches + 1)
+                else (severity, catches)
+            else (severity, catches)
         let newPosition = position + 1
         let newInput = Map.map moveScanners input
-        coreLoop newPosition newSeverity newInput
+        coreLoop newPosition newSeverity newCatches maxCatch newInput
+
+let rec findBestDelay input delay =
+    let delayedInput = Map.map moveScanners input
+    let (s, c) = coreLoop 0 0 0 (Some 1) delayedInput
+    if c > 0 then
+        findBestDelay delayedInput (delay + 1)
+    else
+        delay + 1
 
 [<EntryPoint>]
 let main argv =
     let lines = System.IO.File.ReadAllLines("input.txt")
     let input = lines |> Array.map parse |> Map.ofArray
-    let part1res = coreLoop 0 0 input
-    printfn "Part 1: %d" part1res
+    let (part1sev, part1catch) = coreLoop 0 0 0 None input
+    let part2res = findBestDelay input 0
+    printfn "Part 1: %d; Part 2: %d" part1sev part2res
     0 // return an integer exit code
