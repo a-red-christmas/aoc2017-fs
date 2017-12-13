@@ -1,5 +1,4 @@
-﻿// Learn more about F# at http://fsharp.org
-// See the 'F# Tutorial' project for more help.
+﻿// https://adventofcode.com/2017/day/13
 
 open System.Text.RegularExpressions
 
@@ -59,12 +58,10 @@ let rec coreLoop position severity catches maxCatch input =
         (severity, catches)
     else
         let (newSeverity, newCatches) =
-            if Map.containsKey position input then
-                let layer = input.[position]
-                if layer.ScannerPosition = 0 then
+            match input.TryFind(position) with
+                | Some(layer) when layer.ScannerPosition = 0 ->
                     (severity + (layer.Depth * position), catches + 1)
-                else (severity, catches)
-            else (severity, catches)
+                | _ -> (severity, catches)
         let newPosition = position + 1
         let newInput = Map.map moveScanners input
         coreLoop newPosition newSeverity newCatches maxCatch newInput
