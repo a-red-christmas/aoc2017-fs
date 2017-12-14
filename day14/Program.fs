@@ -47,18 +47,8 @@ let run2 list lengths =
 let str2byte s = 
     Seq.cast<char> s |> Seq.map (fun x -> int x) |> Seq.toList
 
-(*
-while (n) {
-    if (n & 1)
-        printf("1");
-    else
-        printf("0");
-
-    n >>= 1;
-}
-printf("\n");*)
 let binaryString (s: string) =
-    // hack: probably a nicer way to do it
+    // HACK: probably a nicer way to do it
     s.ToLower()
         |> Seq.map (fun x ->
             match x with
