@@ -71,6 +71,22 @@ let binaryString (s: string) =
                 | _ -> failwith "invalid char")
         |> System.String.Concat
 
+let rec floodFill (y, x) toReplace replacement (array: int[,]) =
+    let inBounds =
+        (y >= 0 && y < Array2D.length1 array) &&
+        (x >= 0 && x < Array2D.length2 array)
+    if inBounds && array.[y, x] = toReplace then
+        array.[y, x] <- replacement
+        floodFill (y - 1, x) toReplace replacement array
+        floodFill (y + 1, x) toReplace replacement array
+        floodFill (y, x - 1) toReplace replacement array
+        floodFill (y, x + 1) toReplace replacement array
+        0 |> ignore
+    else
+        0 |> ignore
+
+let array2Dmax a = a |> Seq.cast<int> |> Seq.max
+
 [<EntryPoint>]
 let main argv = 
     let input = "ugkiagan"
@@ -87,6 +103,20 @@ let main argv =
             |> Seq.filter fst
             |> Seq.map snd
             |> Seq.exactlyOne
-    printfn "Part 1: %d" part1res
+    let part2array = Array2D.create 128 128 0
+    for i in [0..127] do
+        for j in [0..127] do
+            part2array.[j, i] <-
+                List.item j processedInputs
+                    |> Seq.item i
+                    |> string
+                    |> int
+    
+    for i in [0..127] do
+        for j in [0..127] do
+            let nextHigh = (array2Dmax part2array) + 1
+            floodFill (j, i) 1 nextHigh part2array
+    let part2res = (array2Dmax part2array) - 1
+    printfn "Part 1: %d; Part 2: %d" part1res part2res
     assert(false)
     0 // return an integer exit code
