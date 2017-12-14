@@ -48,27 +48,11 @@ let str2byte s =
     Seq.cast<char> s |> Seq.map (fun x -> int x) |> Seq.toList
 
 let binaryString (s: string) =
-    // HACK: probably a nicer way to do it
-    s.ToLower()
+    s
+        |> Seq.map (fun x -> "0x" + string x)
+        |> Seq.map byte
         |> Seq.map (fun x ->
-            match x with
-                | '0' -> "0000"
-                | '1' -> "0001"
-                | '2' -> "0010"
-                | '3' -> "0011"
-                | '4' -> "0100"
-                | '5' -> "0101"
-                | '6' -> "0110"
-                | '7' -> "0111"
-                | '8' -> "1000"
-                | '9' -> "1001"
-                | 'a' -> "1010"
-                | 'b' -> "1011"
-                | 'c' -> "1100"
-                | 'd' -> "1101"
-                | 'e' -> "1110"
-                | 'f' -> "1111"
-                | _ -> failwith "invalid char")
+            System.Convert.ToString(x, 2).PadLeft(4, '0'))
         |> System.String.Concat
 
 let rec floodFill (y, x) toReplace replacement (array: int[,]) =
