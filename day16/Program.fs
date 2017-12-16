@@ -1,5 +1,4 @@
-﻿// Learn more about F# at http://fsharp.org
-// See the 'F# Tutorial' project for more help.
+﻿// https://adventofcode.com/2017/day/16
 
 open System.Text.RegularExpressions
 
@@ -72,10 +71,9 @@ let rec runThroughSeveral programs tape seenBefore =
         let r = List.rev seenBefore
         let l = List.length seenBefore
         let m = 1000000000 % l
-        let p = List.item m r
-        failwith "memoization"
+        List.item m r
     else
-        runThroughSeveral np tape (np ::seenBefore)
+        runThroughSeveral np tape (np :: seenBefore)
 
 [<EntryPoint>]
 let main argv = 
@@ -85,5 +83,4 @@ let main argv =
     let part1 = runThrough programs tape
     let part2 = runThroughSeveral programs tape [programs]
     printfn "Part 1: %s; Part 2: %s" part1 part2
-    assert(false)
     0 // return an integer exit code
