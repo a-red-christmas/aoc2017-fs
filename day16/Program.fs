@@ -66,12 +66,24 @@ let rec runThrough programs tape =
                 (List.tail tape)
         | [] -> programs
 
+let rec runThroughSeveral programs tape seenBefore =
+    let np = runThrough programs tape
+    if List.contains np seenBefore then
+        let r = List.rev seenBefore
+        let l = List.length seenBefore
+        let m = 1000000000 % l
+        let p = List.item m r
+        failwith "memoization"
+    else
+        runThroughSeveral np tape (np ::seenBefore)
+
 [<EntryPoint>]
 let main argv = 
     let input = System.IO.File.ReadAllText("input.txt") //"s1,x3/4,pe/b"
     let tape = parseTape input
-    let programs = System.String.Concat([|'a'..'p'|]) //"abcde"
+    let programs = System.String.Concat([|'a'..'p'|])
     let part1 = runThrough programs tape
-    printfn "Part 1: %s" part1
+    let part2 = runThroughSeveral programs tape [programs]
+    printfn "Part 1: %s; Part 2: %s" part1 part2
     assert(false)
     0 // return an integer exit code
