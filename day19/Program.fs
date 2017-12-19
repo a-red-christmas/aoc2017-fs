@@ -28,7 +28,12 @@ let inBounds maze y x =
 
 let isValid maze y x expected =
     if inBounds maze y x then
-        expected maze.[y, x]
+        match maze.[y, x] with
+            | Letter c -> true
+            // HACK: do NOT do '| expected'; it resolves to Empty
+            | HPipe when expected = HPipe -> true
+            | VPipe when expected = VPipe -> true
+            | _ -> false
     else false
 
 let rec run (maze: Tile[,]) (y, x) dir seen steps =
@@ -40,20 +45,8 @@ let rec run (maze: Tile[,]) (y, x) dir seen steps =
                 | _ -> seen
         let (newPosition, newDirection) = 
             if currentTile = Corner then
-                // get tiles for comparison
-                // TODO: make these lambdas returned by a func?
-                let toUp =
-                    isValid maze (y - 1) x (fun x ->
-                         match x with
-                            | VPipe -> true
-                            | Letter c -> true
-                            | _ -> false)
-                let toLeft =
-                    isValid maze y (x - 1) (fun x ->
-                        match x with
-                            | HPipe -> true
-                            | Letter c -> true
-                            | _ -> false)
+                let toUp = isValid maze (y - 1) x VPipe
+                let toLeft = isValid maze y (x - 1) HPipe
                 match dir with
                     | Up
                     | Down ->
