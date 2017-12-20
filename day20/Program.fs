@@ -46,6 +46,21 @@ let rec excite particles iterations =
         let excited = List.map accelerate particles
         excite excited (iterations - 1)
 
+let rec excite2 particles iterations =
+    if iterations = 0 then
+        particles
+    else
+        let excited = List.map accelerate particles
+        let collisions =
+            excited
+                |> List.countBy (fun x -> x.Position)
+        let removed =
+            excited
+                |> List.filter (fun x ->
+                    let c = List.find (fun y -> fst y = x.Position) collisions
+                    snd c = 1)
+        excite2 removed (iterations - 1)
+
 [<EntryPoint>]
 let main argv = 
     let input = System.IO.File.ReadAllLines("input.txt")
@@ -54,4 +69,7 @@ let main argv =
     let closest = List.minBy (fun x -> manhattan x.Position) excited
     let part1res = List.findIndex (fun x -> x = closest) excited
     printfn "Part 1: %d" part1res
+    let collided = excite2 particles 1000
+    let part2res = List.length collided
+    printfn "Part 2: %d" part2res
     0 // return an integer exit code
