@@ -12,17 +12,13 @@ type State =
     | Infected
     | Flagged
 
-let infect state =
+let infect state part2 =
     match state with
+        | Clean when part2 -> Weakened
         | Clean -> Infected
-        | Infected -> Clean
-        | _ -> failwith "Invalid state"
-
-let infect2 state =
-    match state with
-        | Clean -> Weakened
         | Weakened -> Infected
-        | Infected -> Flagged
+        | Infected when part2 -> Flagged
+        | Infected -> Clean
         | Flagged -> Clean
 
 let rotateDir dir infected =
@@ -66,7 +62,7 @@ let rec moveCarrier (grid: State[,]) dir (y, x) part2 infectingBursts bursts =
         let currentState = grid.[y,x]
         let newDir = rotateDir dir currentState
         let newPos = moveDir (y, x) newDir
-        let newState = (if part2 then infect2 else infect) currentState
+        let newState = infect currentState part2
         grid.[y, x] <- newState
         let newIB = infectingBursts + if newState <> Infected then 0 else 1
         moveCarrier grid newDir newPos part2 newIB (bursts - 1)
