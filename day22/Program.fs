@@ -27,13 +27,6 @@ let infect2 state =
 
 let rotateDir dir infected =
     match dir with
-        | Up -> if infected then Right else Left
-        | Down -> if infected then Left else Right
-        | Left -> if infected then Up else Down
-        | Right -> if infected then Down else Up
-
-let rotateDir2 dir infected =
-    match dir with
         | Up ->
             match infected with
                 | Clean -> Left
@@ -71,17 +64,9 @@ let rec moveCarrier (grid: State[,]) dir (y, x) part2 infectingBursts bursts =
         infectingBursts
     else
         let currentState = grid.[y,x]
-        let newDir =
-            if part2 then
-                rotateDir2 dir currentState
-            else
-                rotateDir dir (currentState = Infected)
+        let newDir = rotateDir dir currentState
         let newPos = moveDir (y, x) newDir
-        let newState =
-            if part2 then
-                infect2 currentState
-            else
-                infect currentState
+        let newState = (if part2 then infect2 else infect) currentState
         grid.[y, x] <- newState
         let newIB = infectingBursts + if newState <> Infected then 0 else 1
         moveCarrier grid newDir newPos part2 newIB (bursts - 1)
@@ -93,8 +78,8 @@ let main argv =
     // manually blit the input array onto our "infinite" grid"
     let iy = Array.length input
     let ix = Array.head input |> String.length
-    let starty = (Array2D.length1 grid / 2) - (iy / 2) // - 1?
-    let startx = (Array2D.length2 grid / 2) - (ix / 2) // - 1?
+    let starty = (Array2D.length1 grid / 2) - (iy / 2)
+    let startx = (Array2D.length2 grid / 2) - (ix / 2)
     let endy = starty + ((iy / 2) * 2)
     let endx = startx + ((ix / 2) * 2) 
     let initPos = (Array2D.length1 grid / 2, Array2D.length2 grid / 2)
