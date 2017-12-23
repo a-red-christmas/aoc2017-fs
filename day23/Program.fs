@@ -70,7 +70,7 @@ let getValue registers value =
 
 let rec run tape registers pc mulExec =
     if pc >= List.length tape || pc < 0 then
-        mulExec
+        (mulExec, registers)
     else
         let toExec = tape.[pc]
         let (newPc, newMulExec, newReg) =
@@ -99,6 +99,18 @@ let rec run tape registers pc mulExec =
                     (newPc, mulExec, registers)
         run tape newReg newPc newMulExec
 
+let isPrime x  =
+    [2..x - 1]
+        |> List.filter (fun y -> x % y = 0)
+        |> List.length = 0
+
+let rec optimizedPart2 start finish step primes =
+    if start >= finish then
+        primes
+    else
+        let newPrimes = primes + if isPrime start then 0 else 1
+        optimizedPart2 (start + step) finish step newPrimes
+
 [<EntryPoint>]
 let main argv = 
     let input = System.IO.File.ReadAllLines("input.txt")
@@ -107,6 +119,9 @@ let main argv =
         ['a'..'h']
             |> List.map (fun x -> (x, 0L))
             |> Map.ofList
-    let part1res = run tape registers 0 0
+    let part1res = run tape registers 0 0 |> fst
     printfn "Part 1: %d" part1res
+    // change these to match your first line b register
+    let part2res = optimizedPart2 109900 126901 17 0
+    printfn "Part 2: %d" part2res
     0 // return an integer exit code
