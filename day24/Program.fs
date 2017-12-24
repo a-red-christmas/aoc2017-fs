@@ -50,15 +50,33 @@ let rec sumNodes = function
     | Branch ((x, y), l) ->
         x + y + (List.map sumNodes l |> List.max)
 
+// TODO: this is returning lists for easy debugging, switch to ints
+let rec sumNode2 = function
+    | Leaf (x, y) -> (0, [x;y])
+    | Branch ((x, y), l) ->
+        let z =
+            l
+                |> List.map sumNode2
+                |> List.sortByDescending snd
+                |> List.maxBy fst
+        (fst z + 1, List.append (snd z) [x; y])
+
 [<EntryPoint>]
 let main argv = 
     let input = System.IO.File.ReadAllLines("input.txt")
     let parts = input |> Array.map parse |> Array.toList
+    assert(List.distinct parts = parts)
     let tree = buildTrunks parts
-    //List.iter (printTree 0) tree
+//    List.iter (printTree 0) tree
     let part1res =
         tree
             |> List.map sumNodes
             |> List.max
     printfn "Part 1: %d" part1res
+    // HACK: This doesn't actually return the right answer,
+    // we may be assembling the tree wrong
+    let depth2 =
+        List.map sumNode2 tree
+            |> List.map (fun (x, y) -> (x, List.sum y))
+    let part2res = depth2 |> List.maxBy fst |> snd
     0 // return an integer exit code
