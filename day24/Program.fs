@@ -45,19 +45,14 @@ let rec printTree i n =
             printfn "%sBranch %d/%d" is x y
             List.iter (printTree (i + 1)) l 
 
-let rec sumNodes = function
-    | Leaf (x, y) -> x + y
-    | Branch ((x, y), l) ->
-        x + y + (List.map sumNodes l |> List.max)
-
-let rec sumNode2 = function
+let rec sumNodes f = function
     | Leaf (x, y) -> (0, x + y)
     | Branch ((x, y), l) ->
         let z =
             l
-                |> List.map sumNode2
+                |> List.map (sumNodes f)
                 |> List.sortByDescending snd
-                |> List.maxBy fst
+                |> List.maxBy f
         (fst z + 1, snd z + x + y)
 
 [<EntryPoint>]
@@ -69,11 +64,13 @@ let main argv =
 //    List.iter (printTree 0) tree
     let part1res =
         tree
-            |> List.map sumNodes
-            |> List.max
+            |> List.map (sumNodes snd)
+            |> List.maxBy snd
+            |> snd
     printfn "Part 1: %d" part1res
     let part2res =
-        List.map sumNode2 tree
+        tree
+            |> List.map (sumNodes fst)
             |> List.maxBy fst
             |> snd
     printfn "Part 2: %d" part2res
